@@ -3,3 +3,5 @@ uvicorn
 prometheus-client
 requests
 docker
+scikit-learn
+numpy
