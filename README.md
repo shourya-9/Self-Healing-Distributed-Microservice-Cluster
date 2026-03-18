@@ -50,6 +50,21 @@ The system continuously learns normal behavior and reacts when services degrade.
 
 ---
 
+## 📸 Screenshots
+
+### 🎛 Dashboard UI
+![Dashboard](screenshots/dashboard.png)
+
+### 📊 Grafana Monitoring
+![Grafana](screenshots/grafana1.png)
+![Grafana](screenshots/grafana2.png)
+![Grafana](screenshots/grafana3.png)
+
+### 🚨 Prometheus
+![Prometheus](screenshots/prometheus.png)
+
+---
+
 ## 🏗 Architecture
 
 User Dashboard  
@@ -99,8 +114,8 @@ Docker (Restart Engine)
 
 ### Clone
 
-git clone https://github.com/your-username/ai-self-healing-system.git  
-cd ai-self-healing-system  
+git clone https://github.com/shourya-9/AI-Self-Healing-Microservice-Cluster.git  
+cd AI-Self-Healing-Microservice-Cluster
 
 ### Setup
 
