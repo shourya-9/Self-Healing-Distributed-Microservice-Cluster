@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI Self-Healing System Dashboard</title>
+
+<style>
+
+body{
+    font-family: 'Inter', system-ui;
+    background: radial-gradient(circle at top, #0f172a, #020617);
+    color:white;
+    margin:0;
+}
+
+/* HEADER */
+header{
+    text-align:center;
+    padding:30px;
+    font-size:28px;
+    font-weight:600;
+    background: linear-gradient(90deg,#0ea5e9,#6366f1);
+    -webkit-background-clip:text;
+    color:transparent;
+}
+
+/* CONTAINER */
+.container{
+    max-width:1000px;
+    margin:auto;
+    padding:30px;
+}
+
+/* CARD */
+.card{
+    backdrop-filter: blur(16px);
+    background: rgba(2,6,23,0.7);
+    padding:25px;
+    border-radius:16px;
+    margin-bottom:30px;
+    box-shadow:0 20px 50px rgba(0,0,0,.6);
+    border:1px solid rgba(255,255,255,0.05);
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+/* TITLES */
+h2{
+    margin-top:0;
+    font-weight:500;
+    letter-spacing:0.5px;
+}
+
+/* CONTROL ROW */
+.control{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 0;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+}
+
+.control:last-child{border-bottom:none}
+
+/* BUTTONS */
+button{
+    padding:12px 24px;
+    border:none;
+    border-radius:10px;
+    font-size:14px;
+    cursor:pointer;
+    font-weight:500;
+    transition:.3s;
+}
+
+/* START BUTTON */
+.start{
+    background:linear-gradient(135deg,#22c55e,#4ade80);
+    box-shadow:0 0 15px rgba(34,197,94,.5);
+}
+
+.start:hover{
+    transform:scale(1.05);
+}
+
+/* STOP BUTTON */
+.stop{
+    background:linear-gradient(135deg,#ef4444,#f87171);
+    box-shadow:0 0 15px rgba(239,68,68,.5);
+}
+
+.stop:hover{
+    transform:scale(1.05);
+}
+
+/* STATUS BADGE */
+.status{
+    margin-top:15px;
+    font-size:14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:#94a3b8;
+}
+
+.running .dot{
+    background:#22c55e;
+    box-shadow:0 0 10px #22c55e;
+}
+
+.stopped .dot{
+    background:#ef4444;
+    box-shadow:0 0 10px #ef4444;
+}
+
+/* TOGGLE */
+.toggle{
+    position:relative;
+    width:60px;
+    height:32px;
+}
+
+.toggle input{display:none}
+
+.slider{
+    position:absolute;
+    cursor:pointer;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background:#1e293b;
+    border-radius:30px;
+    transition:.3s;
+}
+
+.slider:before{
+    content:"";
+    position:absolute;
+    height:24px;
+    width:24px;
+    left:4px;
+    bottom:4px;
+    background:white;
+    border-radius:50%;
+    transition:.3s;
+}
+
+input:checked + .slider{
+    background:linear-gradient(135deg,#0ea5e9,#6366f1);
+    box-shadow:0 0 10px rgba(99,102,241,.7);
+}
+
+input:checked + .slider:before{
+    transform:translateX(28px);
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+⚡ AI Self-Healing System Dashboard
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<h2>🚀 System Control</h2>
+
+<button id="startBtn" class="start">Start System</button>
+<button id="stopBtn" class="stop">Stop System</button>
+
+<div class="status stopped" id="statusWrapper">
+<div class="dot"></div>
+<span id="systemStatus">Checking...</span>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>📡 Traffic Generation</h2>
+
+<div class="control">
+<div>Auth Traffic</div>
+<label class="toggle">
+<input type="checkbox" id="authTraffic">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="control">
+<div>Order Traffic</div>
+<label class="toggle">
+<input type="checkbox" id="orderTraffic">
+<span class="slider"></span>
+</label>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>🔥 Latency Injection</h2>
+
+<div class="control">
+<div>Auth Latency</div>
+<label class="toggle">
+<input type="checkbox" id="authLatency">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="control">
+<div>Order Latency</div>
+<label class="toggle">
+<input type="checkbox" id="orderLatency">
+<span class="slider"></span>
+</label>
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+const CONTROL="http://localhost:7010"
+const AUTH="http://localhost:8001"
+const ORDER="http://localhost:8002"
+
+const statusText=document.getElementById("systemStatus")
+const wrapper=document.getElementById("statusWrapper")
+
+/* STATUS */
+
+async function updateStatus(){
+try{
+let res=await fetch(`${CONTROL}/system-status`)
+let data=await res.json()
+
+if(data.running){
+statusText.innerText="Running"
+wrapper.classList.add("running")
+wrapper.classList.remove("stopped")
+}else{
+statusText.innerText="Stopped"
+wrapper.classList.add("stopped")
+wrapper.classList.remove("running")
+}
+
+}catch{
+statusText.innerText="Unreachable"
+}
+}
+
+setInterval(updateStatus,2000)
+updateStatus()
+
+/* SYSTEM CONTROL */
+
+startBtn.onclick=async()=>{
+statusText.innerText="Starting..."
+await fetch(`${CONTROL}/start-system`,{method:"POST"})
+}
+
+stopBtn.onclick=async()=>{
+statusText.innerText="Stopping..."
+await fetch(`${CONTROL}/stop-system`,{method:"POST"})
+}
+
+/* TRAFFIC */
+
+authTraffic.onchange=e=>{
+if(e.target.checked){
+fetch(`${CONTROL}/start-auth-traffic`,{method:"POST"})
+}else{
+fetch(`${CONTROL}/stop-auth-traffic`,{method:"POST"})
+}
+}
+
+orderTraffic.onchange=e=>{
+if(e.target.checked){
+fetch(`${CONTROL}/start-order-traffic`,{method:"POST"})
+}else{
+fetch(`${CONTROL}/stop-order-traffic`,{method:"POST"})
+}
+}
+
+/* LATENCY */
+
+authLatency.onchange=e=>{
+fetch(`${AUTH}/toggle-latency?enabled=${e.target.checked}`,{method:"POST"})
+}
+
+orderLatency.onchange=e=>{
+fetch(`${ORDER}/toggle-latency?enabled=${e.target.checked}`,{method:"POST"})
+}
+
+</script>
+
+</body>
+</html>

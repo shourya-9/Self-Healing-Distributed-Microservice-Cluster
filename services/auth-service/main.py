@@ -49,7 +49,7 @@ def login():
     # Simulate latency
     with state_lock:
         if LATENCY_MODE:
-            time.sleep(random.uniform(1.5, 3.0))
+            time.sleep(random.uniform(6, 10))
 
     REQUEST_COUNT.inc()
     REQUEST_LATENCY.observe(time.time() - start)

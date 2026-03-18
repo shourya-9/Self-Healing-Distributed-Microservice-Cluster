@@ -17,15 +17,15 @@ from sklearn.preprocessing import StandardScaler
 PROMETHEUS_URL = "http://prometheus:9090"
 
 AUTH_QUERY = """
-sum(rate(auth_request_latency_seconds_sum[90s]))
+sum(rate(auth_request_latency_seconds_sum[30s]))
 /
-sum(rate(auth_request_latency_seconds_count[90s]))
+sum(rate(auth_request_latency_seconds_count[30s]))
 """
 
 ORDER_QUERY = """
-sum(rate(order_request_latency_seconds_sum[90s]))
+sum(rate(order_request_latency_seconds_sum[30s]))
 /
-sum(rate(order_request_latency_seconds_count[90s]))
+sum(rate(order_request_latency_seconds_count[30s]))
 """
 
 CHECK_INTERVAL = 5
@@ -125,8 +125,8 @@ def get_metric(query):
 
 def determine_root_cause(auth_latency, order_latency):
 
-    AUTH_THRESHOLD = 1.0
-    ORDER_THRESHOLD = 1.0
+    AUTH_THRESHOLD = 0.2
+    ORDER_THRESHOLD = 0.2
 
     auth_problem = auth_latency > AUTH_THRESHOLD
     order_problem = order_latency > ORDER_THRESHOLD
@@ -259,6 +259,15 @@ def monitoring_loop():
             if root:
                 print(f"🔎 Root cause inferred: {root}")
                 restart_service(root)
+
+            else:
+                # fallback restart
+                if auth_latency > order_latency:
+                    print("⚠ Fallback restart auth-service")
+                    restart_service("auth-service")
+                else:
+                    print("⚠ Fallback restart order-service")
+                    restart_service("order-service")
 
         # ================= RECOVERY =================
 
